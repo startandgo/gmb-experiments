@@ -107,6 +107,7 @@ async function main() {
     case 'locations-list':
       for (let i = 0; i < accounts.length; i++) {
         const locations = await getLocations(accounts[i].name);
+        if (!locations) continue;
         console.table(locations);
       }
       process.exit(0);
@@ -114,6 +115,7 @@ async function main() {
     case 'reviews-list':
       for (let i = 0; i < accounts.length; i++) {
         const locations = await getLocations(accounts[i].name);
+        if (!locations) continue;
         for (let j = 0; j < locations.length; j++) {
           const reviews = await getReviews(accounts[i].name, locations[j].name);
           console.log(reviews);
