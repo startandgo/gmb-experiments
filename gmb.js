@@ -33,13 +33,24 @@ async function acceptInvitations(account) {
 
 async function getLocations(account) {
   const token = await authenticate();
-  const url = `https://mybusinessbusinessinformation.googleapis.com/v1/${account}/locations?readMask=name`;
+  const url = `https://mybusinessbusinessinformation.googleapis.com/v1/${account}/locations?readMask=name,categories.primaryCategory,serviceArea,storefrontAddress`;
   const resp = await axios.get(url, {
     headers: {
       authorization: `Bearer ${token}`
     }
   });
   return resp.data.locations;
+}
+
+async function getCategories() {
+  const token = await authenticate();
+  const url = `https://mybusinessbusinessinformation.googleapis.com/v1/categories?regionCode=IT&languageCode=it&view=BASIC`;
+  const resp = await axios.get(url, {
+    headers: {
+      authorization: `Bearer ${token}`
+    }
+  });
+  return resp.data.categories;
 }
 
 async function getAccounts() {
@@ -82,7 +93,7 @@ async function authenticate() {
 
 function error() {
   console.error('Usage: node gmb.js <action>');
-  console.error('  action: accept-invitations, accounts-list, locations-list, reviews-list');
+  console.error('  action: accept-invitations, accounts-list, locations-list, reviews-list categories-list');
   process.exit(1);
 }
 
@@ -108,7 +119,15 @@ async function main() {
       for (let i = 0; i < accounts.length; i++) {
         const locations = await getLocations(accounts[i].name);
         if (!locations) continue;
-        console.table(locations);
+        console.log(JSON.stringify(locations));
+      }
+      process.exit(0);
+      break;
+    case 'categories-list':
+      for (let i = 0; i < accounts.length; i++) {
+        const locations = await getCategories();
+        if (!locations) continue;
+        console.log(JSON.stringify(locations));
       }
       process.exit(0);
       break;
