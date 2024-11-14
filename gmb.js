@@ -83,7 +83,7 @@ async function authenticate() {
   const jwt = new google.auth.JWT({
     email: key.client_email,
     key: key.private_key,
-    subject: 'google-my-business@helical-study-426812-f4.iam.gserviceaccount.com',
+    subject: key.client_email,
     scopes
   });
 
