@@ -98,7 +98,7 @@ async function authenticate() {
 
 function error() {
   console.error('Usage: node gmb.js <action>');
-  console.error('  action: accept-invitations, accounts-list, locations-list, reviews-list categories-list');
+  console.error('  action: list-invitations, accept-invitations, accounts-list, locations-list, reviews-list categories-list');
   process.exit(1);
 }
 
