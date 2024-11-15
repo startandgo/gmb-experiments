@@ -5,6 +5,7 @@ const key = require('./keyfile.json');
 async function listInvitations(account) {
   const token = await authenticate();
   const url = `https://mybusinessbusinessinformation.googleapis.com/v1/${account}/invitations`;
+
   const resp = await axios.get(url, {
     headers: {
       authorization: `Bearer ${token}`
@@ -26,9 +27,10 @@ async function acceptInvitation(invitation) {
 
 async function acceptInvitations(account) {
   const invitations = await listInvitations(account);
-  invitations.forEach(async invitation => {
-    await acceptInvitation(invitation);
-  });
+  for await (const invitation of invitations) {
+    const response = await acceptInvitation(invitation);
+    console.log(response);
+  }
 }
 
 async function getLocations(account) {
@@ -75,11 +77,13 @@ async function getReviews(accountId, locationId) {
   return resp.data.reviews;
 }
 
+let token = null;
 async function authenticate() {
+  if (token) return token;
   const scopes = [
     'https://www.googleapis.com/auth/business.manage'
   ];
-
+  
   const jwt = new google.auth.JWT({
     email: key.client_email,
     key: key.private_key,
@@ -88,7 +92,8 @@ async function authenticate() {
   });
 
   const resp = await jwt.authorize();
-  return resp.access_token.replace(/\.{2,}/g, '');
+  token = resp.access_token.replace(/\.{2,}/g, '');
+  return token;
 }
 
 function error() {
@@ -105,10 +110,17 @@ async function main() {
   const accounts = await getAccounts();
   switch (process.argv[2]) {
     case 'accept-invitations':
-      accounts.forEach(async account => {
+      for await (const account of accounts) {
         await acceptInvitations(account.name);
-      });
+      }
       console.log('Invitations accepted');
+      process.exit(0);
+      break;
+    case 'list-invitations':
+      for await (const account of accounts) {
+        const invitations = await listInvitations(account.name);
+        console.log(invitations);
+      }
       process.exit(0);
       break;
     case 'accounts-list':
