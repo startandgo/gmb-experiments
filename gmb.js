@@ -2,6 +2,13 @@ const axios = require('axios');
 const { google } = require('googleapis');
 const key = require('./keyfile.json');
 
+function generateUpdateMask(object) {
+  const attributes = Object.keys(object)
+  return attributes.length > 0
+      ? attributes.reduce((actualMask, attribute, index) => (index === 0 ? attribute : `${actualMask},${attribute}`))
+      : ''
+}
+
 async function listInvitations(account) {
   const token = await authenticate();
   const url = `https://mybusinessbusinessinformation.googleapis.com/v1/${account}/invitations`;
@@ -35,7 +42,7 @@ async function acceptInvitations(account) {
 
 async function getLocations(account) {
   const token = await authenticate();
-  const url = `https://mybusinessbusinessinformation.googleapis.com/v1/${account}/locations?readMask=name,categories.primaryCategory,serviceArea,storefrontAddress`;
+  const url = `https://mybusinessbusinessinformation.googleapis.com/v1/${account}/locations?readMask=name,storeCode,title,storefrontAddress`;
   const resp = await axios.get(url, {
     headers: {
       authorization: `Bearer ${token}`
@@ -64,6 +71,17 @@ async function getAccounts() {
     }
   });
   return resp.data.accounts;
+}
+
+async function listAttributes() {
+  const token = await authenticate();
+  const url = `https://mybusinessbusinessinformation.googleapis.com/v1/attributes?regionCode=IT&languageCode=IT&categoryName=gcid:insurance_agency`;
+  const resp = await axios.get(url, {
+    headers: {
+      authorization: `Bearer ${token}`
+    }
+  });
+  return resp.data;
 }
 
 async function getReviews(accountId, locationId) {
@@ -141,6 +159,11 @@ async function main() {
         if (!locations) continue;
         console.log(JSON.stringify(locations));
       }
+      process.exit(0);
+      break;
+    case 'attributes-list':
+      const attributes = await listAttributes();
+      console.log(JSON.stringify(attributes));
       process.exit(0);
       break;
     case 'reviews-list':
