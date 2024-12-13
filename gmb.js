@@ -42,7 +42,7 @@ async function acceptInvitations(account) {
 
 async function getLocations(account) {
   const token = await authenticate();
-  const url = `https://mybusinessbusinessinformation.googleapis.com/v1/${account}/locations?readMask=name,storeCode,title,storefrontAddress`;
+  const url = `https://mybusinessbusinessinformation.googleapis.com/v1/${account}/locations?pageSize=100&readMask=name,storeCode,title,storefrontAddress`;
   const resp = await axios.get(url, {
     headers: {
       authorization: `Bearer ${token}`
